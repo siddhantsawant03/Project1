@@ -1,0 +1,29 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Environment / secrets
+.env
+.env.*
+
+# Local database
+*.duckdb
+
+# Raw downloaded dataset
+data/raw/
+
+# Generated outputs
+outputs/
+excel/
+
+# Local backups
+*_backup.py
+*_backup.html
+*_backup.js
+*_backup.css
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/

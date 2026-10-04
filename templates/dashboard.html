@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Enterprise FP&A Analytics</title>
+
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+
+  <body>
+    <!-- ================================================================
+     SIDEBAR
+     ================================================================ -->
+
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">FP</div>
+
+        <div class="brand-copy">
+          <strong>Finance Performance</strong>
+          <span>Planning & Analytics</span>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">REPORTING</span>
+
+        <button class="nav active" data-tab="overview">
+          <span class="nav-icon">▦</span>
+          <span>Executive Summary</span>
+        </button>
+
+        <button class="nav" data-tab="pnl">
+          <span class="nav-icon">∿</span>
+          <span>P&L Performance</span>
+        </button>
+
+        <button class="nav" data-tab="variance">
+          <span class="nav-icon">±</span>
+          <span>Budget vs Actual</span>
+        </button>
+
+        <button class="nav" data-tab="drivers">
+          <span class="nav-icon">↗</span>
+          <span>Driver Analysis</span>
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">PLANNING</span>
+
+        <button class="nav" data-tab="forecast">
+          <span class="nav-icon">◷</span>
+          <span>Forecast & Outlook</span>
+        </button>
+
+        <button class="nav" data-tab="cost">
+          <span class="nav-icon">⌗</span>
+          <span>Cost Centres</span>
+        </button>
+
+        <button class="nav" data-tab="scenario">
+          <span class="nav-icon">◇</span>
+          <span>Scenario Planning</span>
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">GOVERNANCE</span>
+
+        <button class="nav" data-tab="quality">
+          <span class="nav-icon">✓</span>
+          <span>Data Quality</span>
+        </button>
+
+        <button class="nav" data-tab="methodology">
+          <span class="nav-icon">i</span>
+          <span>Methodology</span>
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <div>Internal management view</div>
+        <small>Public synthetic research dataset</small>
+        <small>FP&A analytical model</small>
+      </div>
+    </aside>
+
+    <!-- ================================================================
+     MAIN APPLICATION
+     ================================================================ -->
+
+    <main class="main">
+      <!-- HEADER -->
+
+      <header class="topbar">
+        <div class="page-heading">
+          <div class="eyebrow">FP&A / MANAGEMENT REPORTING</div>
+
+          <h1 id="title">Executive Summary</h1>
+
+          <div class="period-line" id="periodLine">
+            Loading analytical period...
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div class="filter-group">
+            <label>
+              <span>Company</span>
+
+              <select id="company">
+                <option value="ALL">All companies</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Year</span>
+
+              <select id="year">
+                <option value="ALL">All periods</option>
+              </select>
+            </label>
+          </div>
+
+          <button class="refresh-button" id="refresh">Refresh</button>
+        </div>
+      </header>
+
+      <!-- ============================================================
+         EXECUTIVE SUMMARY
+         ============================================================ -->
+
+      <section id="overview" class="tab active">
+        <div class="page-intro">
+          <div>
+            <h2>Executive Summary</h2>
+
+            <p>
+              Management view of revenue, profitability, budget performance and
+              forward outlook.
+            </p>
+          </div>
+
+          <div class="status-chip">
+            <span class="status-dot"></span>
+            Analytical model loaded
+          </div>
+        </div>
+
+        <div id="kpis" class="kpis"></div>
+
+        <div class="grid two">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Revenue — Actual vs Budget</h3>
+                <p>Monthly management view</p>
+              </div>
+            </div>
+
+            <div id="trend" class="chart"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Operating Profit</h3>
+                <p>Actual monthly performance</p>
+              </div>
+            </div>
+
+            <div id="profit" class="chart"></div>
+          </article>
+        </div>
+
+        <div class="grid two">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Variance by Category</h3>
+                <p>Positive values are favorable to operating profit</p>
+              </div>
+            </div>
+
+            <div id="categoryVariance" class="chart"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Management Signals</h3>
+                <p>Key observations from the current analytical view</p>
+              </div>
+            </div>
+
+            <div id="signals" class="signals"></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============================================================
+         P&L
+         ============================================================ -->
+
+      <section id="pnl" class="tab">
+        <div class="page-intro">
+          <div>
+            <h2>Management P&L</h2>
+
+            <p>
+              Revenue, cost structure and profitability across the selected
+              reporting period.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid two">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Revenue & Operating Profit</h3>
+                <p>Actual monthly trend</p>
+              </div>
+            </div>
+
+            <div id="pnlChart" class="chart tall"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Operating Margin</h3>
+                <p>Actual vs budget margin</p>
+              </div>
+            </div>
+
+            <div id="marginChart" class="chart tall"></div>
+          </article>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-title">
+            <div>
+              <h3>Monthly P&L</h3>
+              <p>Management reporting view</p>
+            </div>
+          </div>
+
+          <table id="pnlTable">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Revenue</th>
+                <th>COGS</th>
+                <th>Gross Profit</th>
+                <th>Personnel</th>
+                <th>Opex</th>
+                <th>Depreciation</th>
+                <th>Operating Profit</th>
+                <th>OP Margin</th>
+              </tr>
+            </thead>
+
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============================================================
+         BUDGET VS ACTUAL
+         ============================================================ -->
+
+      <section id="variance" class="tab">
+        <div class="page-intro">
+          <div>
+            <h2>Budget vs Actual</h2>
+
+            <p>
+              Variance analysis using management-oriented favorable /
+              unfavorable conventions.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid two">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Operating Profit Variance</h3>
+                <p>Actual operating profit less budget</p>
+              </div>
+            </div>
+
+            <div id="varianceChart" class="chart"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Variance by Category</h3>
+                <p>Management impact on operating profit</p>
+              </div>
+            </div>
+
+            <div id="varianceCategory" class="chart"></div>
+          </article>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-title">
+            <div>
+              <h3>Budget Performance</h3>
+              <p>Actual vs budget by P&L category</p>
+            </div>
+          </div>
+
+          <table id="varianceTable">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Actual</th>
+                <th>Budget</th>
+                <th>Variance</th>
+                <th>Var %</th>
+                <th>Assessment</th>
+              </tr>
+            </thead>
+
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============================================================
+         DRIVER ANALYSIS
+         ============================================================ -->
+
+      <section id="drivers" class="tab">
+        <div class="page-intro">
+          <div>
+            <h2>Driver Analysis</h2>
+
+            <p>
+              Decomposition of operating profit variance into the underlying P&L
+              drivers.
+            </p>
+          </div>
+        </div>
+
+        <div class="driver-summary" id="driverSummary"></div>
+
+        <div class="grid two">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Operating Profit Variance Bridge</h3>
+                <p>Positive impact improves operating profit</p>
+              </div>
+            </div>
+
+            <div id="driverChart" class="chart tall"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Driver Contribution</h3>
+                <p>Absolute impact ranking</p>
+              </div>
+            </div>
+
+            <div id="driverContribution" class="chart tall"></div>
+          </article>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-title">
+            <div>
+              <h3>Variance Drivers</h3>
+              <p>Reconciles to the total operating profit variance</p>
+            </div>
+          </div>
+
+          <table id="driverTable">
+            <thead>
+              <tr>
+                <th>Driver</th>
+                <th>Actual</th>
+                <th>Budget</th>
+                <th>Management Impact</th>
+                <th>Direction</th>
+              </tr>
+            </thead>
+
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============================================================
+         FORECAST
+         ============================================================ -->
+
+      <section id="forecast" class="tab">
+        <div class="page-intro">
+          <div>
+            <h2>Forecast & Outlook</h2>
+
+            <p>
+              2026 baseline outlook using a seasonal-naïve prior-year same-month
+              forecasting method.
+            </p>
+          </div>
+
+          <div class="method-chip">Seasonal naïve baseline</div>
+        </div>
+
+        <div class="grid two">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Operating Profit Outlook</h3>
+                <p>Forecast vs budget</p>
+              </div>
+            </div>
+
+            <div id="forecastChart" class="chart"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Forecast Gap</h3>
+                <p>Forecast operating profit less budget</p>
+              </div>
+            </div>
+
+            <div id="forecastGap" class="chart"></div>
+          </article>
+        </div>
+
+        <div class="cards-row" id="forecastCards"></div>
+
+        <div class="table-wrap">
+          <div class="table-title">
+            <div>
+              <h3>Forecast Validation</h3>
+              <p>2025 backtest of the forecasting baseline</p>
+            </div>
+          </div>
+
+          <table id="backtestTable">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Actual</th>
+                <th>Forecast</th>
+                <th>MAE</th>
+                <th>MAPE</th>
+                <th>Bias</th>
+              </tr>
+            </thead>
+
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============================================================
+         COST CENTRES
+         ============================================================ -->
+
+      <section id="cost" class="tab">
+        <div class="page-intro">
+          <div>
+            <h2>Cost Centre Analysis</h2>
+
+            <p>
+              Performance and budget variance across populated
+              company-cost-centre combinations.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid two">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Actual Performance</h3>
+                <p>Highest-value combinations</p>
+              </div>
+            </div>
+
+            <div id="ccChart" class="chart"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Largest Variance Drivers</h3>
+                <p>Most significant budget gaps</p>
+              </div>
+            </div>
+
+            <div id="ccVarChart" class="chart"></div>
+          </article>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-title">
+            <div>
+              <h3>Cost Centre Performance</h3>
+              <p>Actual, budget and variance</p>
+            </div>
+          </div>
+
+          <table id="ccTable">
+            <thead>
+              <tr>
+                <th>Cost Centre</th>
+                <th>Actual</th>
+                <th>Budget</th>
+                <th>Variance</th>
+                <th>Var %</th>
+              </tr>
+            </thead>
+
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============================================================
+         SCENARIO PLANNING
+         ============================================================ -->
+
+      <section id="scenario" class="tab">
+        <div class="page-intro">
+          <div>
+            <h2>Scenario Planning</h2>
+
+            <p>
+              Explore how explicit operating assumptions affect the forward P&L.
+            </p>
+          </div>
+
+          <div class="method-chip">Analytical scenario — not a forecast</div>
+        </div>
+
+        <div class="scenario-panel">
+          <div class="scenario-copy">
+            <h3>Planning assumptions</h3>
+
+            <p>
+              Adjust the assumptions below to evaluate potential management
+              outcomes.
+            </p>
+
+            <div class="scenario-note">
+              Base scenario uses the existing forecast baseline. Upside and
+              Downside scenarios apply explicit management assumptions.
+            </div>
+          </div>
+
+          <div class="scenario-controls">
+            <label class="slider-control">
+              <span>
+                Revenue growth
+                <b id="revv">0%</b>
+              </span>
+
+              <input
+                id="rev"
+                type="range"
+                min="-10"
+                max="10"
+                value="0"
+                step="1"
+              />
+            </label>
+
+            <label class="slider-control">
+              <span>
+                COGS change
+                <b id="cogsv">0%</b>
+              </span>
+
+              <input
+                id="cogs"
+                type="range"
+                min="-5"
+                max="5"
+                value="0"
+                step="1"
+              />
+            </label>
+
+            <label class="slider-control">
+              <span>
+                Personnel growth
+                <b id="persv">0%</b>
+              </span>
+
+              <input
+                id="pers"
+                type="range"
+                min="-5"
+                max="10"
+                value="0"
+                step="1"
+              />
+            </label>
+
+            <label class="slider-control">
+              <span>
+                Opex growth
+                <b id="opexv">0%</b>
+              </span>
+
+              <input
+                id="opex"
+                type="range"
+                min="-5"
+                max="10"
+                value="0"
+                step="1"
+              />
+            </label>
+          </div>
+        </div>
+
+        <div class="scenario-output" id="scenarioOutput"></div>
+
+        <div class="grid two scenario-lower">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Scenario Operating Profit</h3>
+                <p>Annualized scenario comparison</p>
+              </div>
+            </div>
+
+            <div id="scenarioChart" class="chart"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Scenario Margin</h3>
+                <p>Operating margin by scenario</p>
+              </div>
+            </div>
+
+            <div id="scenarioMarginChart" class="chart"></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============================================================
+         DATA QUALITY
+         ============================================================ -->
+
+      <section id="quality" class="tab">
+        <div class="page-intro">
+          <div>
+            <h2>Data Quality & Controls</h2>
+
+            <p>
+              Validation checks supporting the analytical model and management
+              reporting outputs.
+            </p>
+          </div>
+
+          <div class="status-chip">
+            <span class="status-dot"></span>
+            Control framework
+          </div>
+        </div>
+
+        <div id="qualityCards" class="kpis"></div>
+
+        <div class="grid two">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Model Controls</h3>
+                <p>Checks performed during the pipeline</p>
+              </div>
+            </div>
+
+            <div class="control-list">
+              <div>
+                <span class="control-icon">✓</span>
+                <span>Duplicate analytical key check</span>
+                <b>Passed</b>
+              </div>
+
+              <div>
+                <span class="control-icon">✓</span>
+                <span>Gross profit reconciliation</span>
+                <b>Passed</b>
+              </div>
+
+              <div>
+                <span class="control-icon">✓</span>
+                <span>Operating profit reconciliation</span>
+                <b>Passed</b>
+              </div>
+
+              <div>
+                <span class="control-icon">✓</span>
+                <span>Python / SQL reconciliation</span>
+                <b>Passed</b>
+              </div>
+
+              <div>
+                <span class="control-icon">✓</span>
+                <span>Forecast backtest</span>
+                <b>Completed</b>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Data Coverage</h3>
+                <p>Scope of the analytical model</p>
+              </div>
+            </div>
+
+            <div id="coverageSummary" class="coverage-summary"></div>
+          </article>
+        </div>
+
+        <div class="quality-note">
+          <h3>Important data note</h3>
+
+          <p>
+            The source dataset is synthetic and publicly published for FP&A
+            research and analytical use. It is not a representation of an actual
+            company's financial performance.
+          </p>
+
+          <p>
+            The model intentionally retains transparent data-quality indicators
+            rather than presenting the dataset as perfectly complete.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============================================================
+         METHODOLOGY
+         ============================================================ -->
+
+      <section id="methodology" class="tab">
+        <div class="page-intro">
+          <div>
+            <h2>Methodology & Data Story</h2>
+
+            <p>
+              How the source data was transformed into the management reporting
+              and planning outputs.
+            </p>
+          </div>
+
+          <div class="method-chip">End-to-end analytical workflow</div>
+        </div>
+
+        <div class="methodology-intro">
+          <div class="methodology-number">FP&A</div>
+
+          <div>
+            <h3>From accounting postings to management insight</h3>
+
+            <p>
+              The project combines SQL, Python, Excel and a web-based reporting
+              layer to demonstrate a complete FP&A analytics workflow. The
+              objective is not simply to visualize the source data, but to
+              transform it into auditable management measures.
+            </p>
+          </div>
+        </div>
+
+        <div id="methodologySteps" class="methodology-steps"></div>
+
+        <div class="grid two methodology-bottom">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Technology Stack</h3>
+                <p>Tools used across the analytical workflow</p>
+              </div>
+            </div>
+
+            <div class="stack-grid">
+              <div>
+                <strong>Python</strong>
+                <span>
+                  Data preparation, validation, forecasting and scenarios
+                </span>
+              </div>
+
+              <div>
+                <strong>SQL / DuckDB</strong>
+                <span> Analytical views and reconciliation </span>
+              </div>
+
+              <div>
+                <strong>Excel</strong>
+                <span> Management model and reporting output </span>
+              </div>
+
+              <div>
+                <strong>Flask / Plotly</strong>
+                <span> Interactive management dashboard </span>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Final Outputs</h3>
+                <p>Deliverables generated by the pipeline</p>
+              </div>
+            </div>
+
+            <div class="output-list">
+              <span>Management P&L</span>
+              <span>Budget vs Actual</span>
+              <span>Variance Driver Analysis</span>
+              <span>Cost Centre Analysis</span>
+              <span>2026 Forecast</span>
+              <span>Forecast Backtest</span>
+              <span>Scenario Analysis</span>
+              <span>Excel Management Model</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="transparency-box">
+          <div class="transparency-icon">i</div>
+
+          <div>
+            <h3>Data transparency</h3>
+
+            <p>
+              The underlying SAP-structured dataset is synthetic but
+              intentionally designed for FP&A research. All management measures,
+              assumptions and forecast methodology used in this application are
+              explicitly documented so the analysis can be reproduced and
+              challenged.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================================================================
+     LOADING OVERLAY
+     ================================================================ -->
+
+    <div id="loading" class="loading-overlay">
+      <div class="loading-box">
+        <div class="loading-spinner"></div>
+
+        <strong>Loading FP&A model</strong>
+
+        <span> Preparing management reporting... </span>
+      </div>
+    </div>
+
+    <!-- APPLICATION JAVASCRIPT -->
+
+    <script src="/static/js/app.js"></script>
+  </body>
+</html>
